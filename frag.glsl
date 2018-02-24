@@ -1,6 +1,8 @@
 #version 400
 
+in vec3 shad_color;
+
 void main()
 {
-	gl_FragColor(1.0,1.0,1.0,0.0);
+	gl_FragColor = vec4(shad_color.r,shad_color.g,shad_color.b,0.0);
 }
