@@ -15,14 +15,14 @@ fn main() {
     gl::load_with(|s| window.get_proc_address(s) as *const std::os::raw::c_void);
 
     let vert_src = {
-        let mut file = std::fs::File::open("vert.glsl").unwrap();
+        let mut file = std::fs::File::open("vert.vert").unwrap();
         let mut src = String::new();
         file.read_to_string(&mut src).unwrap();
         src
     };
 
     let frag_src = {
-        let mut file = std::fs::File::open("frag.glsl").unwrap();
+        let mut file = std::fs::File::open("frag.frag").unwrap();
         let mut src = String::new();
         file.read_to_string(&mut src).unwrap();
         src
@@ -30,37 +30,12 @@ fn main() {
 
     let mut vert_buffer: GLuint = 0;
     let mut color_buffer: GLuint = 0;
-    let verts: Vec<GLfloat> = vec![-0.5, -0.5, 5.0, -0.5, 0.5, 0.5, -0.5, 0.5];
-    let color: Vec<GLfloat> = vec![1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0];
+    let verts: Vec<GLfloat> = vec![
+        -0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.5, 0.5, 0.0, -0.5, 0.5, 0.0
+    ];
+    let color: Vec<GLfloat> = vec![0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.5];
     unsafe {
-        gl::ClearColor(0.2, 0.2, 0.8, 0.0);
-
-        gl::GenBuffers(1, &mut vert_buffer as *mut GLuint);
-        gl::BindBuffer(gl::ARRAY_BUFFER, vert_buffer);
-        gl::BufferData(
-            gl::ARRAY_BUFFER,
-            4 * verts.len() as isize,
-            verts.as_ptr() as *const std::os::raw::c_void,
-            gl::STATIC_DRAW,
-        );
-
-        gl::GenBuffers(1, &mut color_buffer as *mut GLuint);
-        gl::BindBuffer(gl::ARRAY_BUFFER, color_buffer);
-        gl::BufferData(
-            gl::ARRAY_BUFFER,
-            4 * color.len() as isize,
-            color.as_ptr() as *const std::os::raw::c_void,
-            gl::STATIC_DRAW,
-        );
-
-        gl::BindBuffer(gl::ARRAY_BUFFER, vert_buffer);
-        gl::VertexAttribPointer(0,2,gl::FLOAT,gl::FALSE,0,std::ptr::null());
-        gl::EnableVertexAttribArray(0);
-
-        gl::BindBuffer(gl::ARRAY_BUFFER, color_buffer);
-        gl::VertexAttribPointer(1,3,gl::FLOAT,gl::FALSE,0,std::ptr::null());
-        gl::EnableVertexAttribArray(1);
-
+        gl::ClearColor(0.0, 0.0, 0.0, 0.0);
 
         let vert_shader = gl::CreateShader(gl::VERTEX_SHADER);
         let frag_shader = gl::CreateShader(gl::FRAGMENT_SHADER);
@@ -94,6 +69,29 @@ fn main() {
         gl::LinkProgram(shader);
 
         gl::UseProgram(shader);
+
+        gl::EnableVertexAttribArray(0);
+        gl::EnableVertexAttribArray(1);
+
+        gl::GenBuffers(1, &mut vert_buffer as *mut GLuint);
+        gl::BindBuffer(gl::ARRAY_BUFFER, vert_buffer);
+        gl::BufferData(
+            gl::ARRAY_BUFFER,
+            4 * verts.len() as isize,
+            verts.as_ptr() as *const std::os::raw::c_void,
+            gl::STATIC_DRAW,
+        );
+        gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
+
+        gl::GenBuffers(1, &mut color_buffer as *mut GLuint);
+        gl::BindBuffer(gl::ARRAY_BUFFER, color_buffer);
+        gl::BufferData(
+            gl::ARRAY_BUFFER,
+            4 * color.len() as isize,
+            color.as_ptr() as *const std::os::raw::c_void,
+            gl::STATIC_DRAW,
+        );
+        gl::VertexAttribPointer(1, 3, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
     }
 
     while !window.should_close() {
