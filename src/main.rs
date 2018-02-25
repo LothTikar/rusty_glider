@@ -6,7 +6,7 @@ use gl::types::*;
 use glfw::Context;
 
 fn main() {
-    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     let mut window = glfw.create_window(500, 500, "Rusty Glider", glfw::WindowMode::Windowed)
         .unwrap()
@@ -95,10 +95,13 @@ fn main() {
     }
 
     while !window.should_close() {
+        let cursor_pos = window.get_cursor_pos();
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
+            gl::Uniform2f(0,(cursor_pos.0/250.0 - 1.0) as f32,(cursor_pos.1/250.0 - 1.0) as f32);
             gl::DrawArrays(gl::TRIANGLE_FAN, 0, 4);
         }
         window.swap_buffers();
+        glfw.poll_events();
     }
 }
