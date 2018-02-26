@@ -6,9 +6,11 @@ layout(location = 1) in vec3 color;
 uniform vec2 rot;
 
 out vec3 shad_color;
+out vec3 tex_coord;
 
 void main()
 {
+    tex_coord = pos;
 	shad_color = color;
 	vec3 rot_pos = pos;
 	rot_pos *= mat3(
