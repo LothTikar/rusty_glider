@@ -31,11 +31,28 @@ fn main() {
     let mut vert_buffer: GLuint = 0;
     let mut color_buffer: GLuint = 0;
     let verts: Vec<GLfloat> = vec![
-        -0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.5, 0.5, 0.0, -0.5, 0.5, 0.0
+        0.5, 0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5,
+        0.5, -0.5, 0.5,
+        0.5, 0.5, 0.5,
+        -0.5, 0.5, 0.5,
+        -0.5, 0.5, -0.5,
+        -0.5, -0.5, -0.5
     ];
-    let color: Vec<GLfloat> = vec![0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.5];
+    let color: Vec<GLfloat> = vec![
+        0.5, 0.0, 0.0,
+        0.0, 0.5, 0.0,
+        0.0, 0.0, 0.5,
+        0.5, 0.5, 0.5,
+        0.5, 0.0, 0.0,
+        0.0, 0.5, 0.0,
+        0.0, 0.0, 0.5,
+        0.5, 0.5, 0.5,
+    ];
     unsafe {
         gl::ClearColor(0.0, 0.0, 0.0, 0.0);
+        gl::Enable(gl::DEPTH_TEST);
 
         let vert_shader = gl::CreateShader(gl::VERTEX_SHADER);
         let frag_shader = gl::CreateShader(gl::FRAGMENT_SHADER);
@@ -97,9 +114,9 @@ fn main() {
     while !window.should_close() {
         let cursor_pos = window.get_cursor_pos();
         unsafe {
-            gl::Clear(gl::COLOR_BUFFER_BIT);
-            gl::Uniform2f(0,(cursor_pos.0/250.0 - 1.0) as f32,(cursor_pos.1/250.0 - 1.0) as f32);
-            gl::DrawArrays(gl::TRIANGLE_FAN, 0, 4);
+            gl::Clear(gl::COLOR_BUFFER_BIT|gl::DEPTH_BUFFER_BIT);
+            gl::Uniform2f(0, (cursor_pos.0 / 250.0 - 1.0) as f32, (cursor_pos.1 / 250.0 - 1.0) as f32);
+            gl::DrawArrays(gl::TRIANGLE_FAN, 0, 8);
         }
         window.swap_buffers();
         glfw.poll_events();
