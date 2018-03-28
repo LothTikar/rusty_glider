@@ -33,7 +33,7 @@ fn main() {
     // let mut color_buffer: GLuint = 0;
 
     let boat_stl = {
-        let mut file = std::fs::File::open("/home/lothtikar/Downloads/3DBenchy.stl").unwrap();
+        let mut file = std::fs::File::open("Glider DG-1000.stl").unwrap();
         stl_io::read_stl(&mut file).unwrap()
     };
 

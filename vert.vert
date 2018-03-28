@@ -10,7 +10,7 @@ out vec3 tex_coord;
 
 void main()
 {
-	vec3 rot_pos = pos*0.025;
+	vec3 rot_pos = pos*0.3;
 
   tex_coord = rot_pos;
 	shad_color = rot_pos;
