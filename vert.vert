@@ -1,7 +1,7 @@
 #version 400
 
 layout(location = 0) in vec3 pos;
-layout(location = 1) in vec3 color;
+// layout(location = 1) in vec3 color;
 
 uniform vec2 rot;
 
@@ -10,9 +10,11 @@ out vec3 tex_coord;
 
 void main()
 {
-    tex_coord = pos;
-	shad_color = color;
-	vec3 rot_pos = pos;
+	vec3 rot_pos = pos*0.025;
+
+  tex_coord = rot_pos;
+	shad_color = rot_pos;
+	// shad_color = color;
 	rot_pos *= mat3(
 		cos(rot[0]),0,sin(rot[0]),
 		0,1,0,

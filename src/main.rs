@@ -1,9 +1,10 @@
 extern crate gl;
 extern crate glfw;
+extern crate stl_io;
 
-use std::io::Read;
 use gl::types::*;
 use glfw::Context;
+use std::io::Read;
 
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -29,27 +30,44 @@ fn main() {
     };
 
     let mut vert_buffer: GLuint = 0;
-    let mut color_buffer: GLuint = 0;
-    let verts: Vec<GLfloat> = vec![
-         0.5,  0.5, -0.5,
-        -0.5, -0.5, -0.5,
-         0.5, -0.5, -0.5,
-         0.5, -0.5,  0.5,
-         0.5,  0.5,  0.5,
-        -0.5,  0.5,  0.5,
-        -0.5,  0.5, -0.5,
-        -0.5, -0.5, -0.5
-    ];
-    let color: Vec<GLfloat> = vec![
-        0.5, 0.5, 0.5,
-        0.5, 0.0, 0.0,
-        0.5, 0.5, 0.0,
-        0.0, 0.5, 0.0,
-        0.0, 0.5, 0.5,
-        0.0, 0.0, 0.5,
-        0.5, 0.0, 0.5,
-        0.5, 0.0, 0.0,
-    ];
+    // let mut color_buffer: GLuint = 0;
+
+    let boat_stl = {
+        let mut file = std::fs::File::open("/home/lothtikar/Downloads/3DBenchy.stl").unwrap();
+        stl_io::read_stl(&mut file).unwrap()
+    };
+
+    let mut verts: Vec<GLfloat> = Vec::with_capacity(boat_stl.vertices.len());
+
+    for tri in boat_stl.faces {
+        for vert in tri.vertices.iter() {
+            for coord in boat_stl.vertices[*vert].iter() {
+                verts.push(*coord);
+            }
+        }
+    }
+
+    // let verts: Vec<GLfloat> = vec![
+    //      0.5,  0.5, -0.5,
+    //     -0.5, -0.5, -0.5,
+    //      0.5, -0.5, -0.5,
+    //      0.5, -0.5,  0.5,
+    //      0.5,  0.5,  0.5,
+    //     -0.5,  0.5,  0.5,
+    //     -0.5,  0.5, -0.5,
+    //     -0.5, -0.5, -0.5
+    // ];
+    // let color: Vec<GLfloat> = vec![
+    //     0.5, 0.5, 0.5,
+    //     0.5, 0.0, 0.0,
+    //     0.5, 0.5, 0.0,
+    //     0.0, 0.5, 0.0,
+    //     0.0, 0.5, 0.5,
+    //     0.0, 0.0, 0.5,
+    //     0.5, 0.0, 0.5,
+    //     0.5, 0.0, 0.0,
+    // ];
+
     unsafe {
         gl::ClearColor(0.0, 0.0, 0.0, 0.0);
         gl::Enable(gl::DEPTH_TEST);
@@ -88,10 +106,18 @@ fn main() {
         gl::UseProgram(shader);
 
         gl::EnableVertexAttribArray(0);
-        gl::EnableVertexAttribArray(1);
+        // gl::EnableVertexAttribArray(1);
 
         gl::GenBuffers(1, &mut vert_buffer as *mut GLuint);
         gl::BindBuffer(gl::ARRAY_BUFFER, vert_buffer);
+
+        // gl::BufferData(
+        //     gl::ARRAY_BUFFER,
+        //     4 * verts.len() as isize,
+        //     verts.as_ptr() as *const std::os::raw::c_void,
+        //     gl::STATIC_DRAW,
+        // );
+
         gl::BufferData(
             gl::ARRAY_BUFFER,
             4 * verts.len() as isize,
@@ -100,23 +126,27 @@ fn main() {
         );
         gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
 
-        gl::GenBuffers(1, &mut color_buffer as *mut GLuint);
-        gl::BindBuffer(gl::ARRAY_BUFFER, color_buffer);
-        gl::BufferData(
-            gl::ARRAY_BUFFER,
-            4 * color.len() as isize,
-            color.as_ptr() as *const std::os::raw::c_void,
-            gl::STATIC_DRAW,
-        );
-        gl::VertexAttribPointer(1, 3, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
+        // gl::GenBuffers(1, &mut color_buffer as *mut GLuint);
+        // gl::BindBuffer(gl::ARRAY_BUFFER, color_buffer);
+        // gl::BufferData(
+        //     gl::ARRAY_BUFFER,
+        //     4 * color.len() as isize,
+        //     color.as_ptr() as *const std::os::raw::c_void,
+        //     gl::STATIC_DRAW,
+        // );
+        // gl::VertexAttribPointer(1, 3, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
     }
 
     while !window.should_close() {
         let cursor_pos = window.get_cursor_pos();
         unsafe {
-            gl::Clear(gl::COLOR_BUFFER_BIT|gl::DEPTH_BUFFER_BIT);
-            gl::Uniform2f(0, (cursor_pos.0 / 250.0 - 1.0) as f32, (cursor_pos.1 / 250.0 - 1.0) as f32);
-            gl::DrawArrays(gl::TRIANGLE_FAN, 0, 8);
+            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
+            gl::Uniform2f(
+                0,
+                (cursor_pos.0 / 250.0 - 1.0) as f32,
+                (cursor_pos.1 / 250.0 - 1.0) as f32,
+            );
+            gl::DrawArrays(gl::TRIANGLES, 0, verts.len() as i32);
         }
         window.swap_buffers();
         glfw.poll_events();
