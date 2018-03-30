@@ -1,4 +1,4 @@
-#version 400
+#version 330
 
 in vec3 shad_color;
 in vec3 tex_coord;

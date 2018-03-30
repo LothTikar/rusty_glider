@@ -6,9 +6,45 @@ use gl::types::*;
 use glfw::Context;
 use std::io::Read;
 
+fn print_gl_error() {
+    println!(
+        "{}",
+        match unsafe { gl::GetError() } {
+            gl::NO_ERROR => "GL_NO_ERROR",
+            gl::INVALID_ENUM => "GL_INVALID_ENUM",
+            gl::INVALID_VALUE => "GL_INVALID_VALUE",
+            gl::INVALID_OPERATION => "GL_INVALID_OPERATION",
+            gl::INVALID_FRAMEBUFFER_OPERATION => "GL_INVALID_FRAMEBUFFER_OPERATION",
+            gl::OUT_OF_MEMORY => "GL_OUT_OF_MEMORY",
+            _ => panic!("gl::GetError() giving unknown value!"),
+        }
+    );
+}
+
+fn print_shader_log(shader: GLuint) {
+    let mut program_log: Vec<u8> = Vec::new();
+    program_log.resize(10000, 0);
+    let mut log_size: GLsizei = 0;
+    unsafe {
+        gl::GetShaderInfoLog(
+            shader,
+            program_log.len() as i32,
+            &mut log_size,
+            program_log.as_mut_ptr() as *mut i8,
+        );
+    }
+    program_log.resize(log_size as usize, 0);
+    println!("log_size:{}", log_size);
+    println!("program_log:");
+    println!("{}", std::string::String::from_utf8(program_log).unwrap())
+}
+
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
-
+    glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
+    glfw.window_hint(glfw::WindowHint::OpenGlProfile(
+        glfw::OpenGlProfileHint::Core,
+    ));
     let mut window = glfw.create_window(500, 500, "Rusty Glider", glfw::WindowMode::Windowed)
         .unwrap()
         .0;
@@ -47,28 +83,13 @@ fn main() {
         }
     }
 
-    // let verts: Vec<GLfloat> = vec![
-    //      0.5,  0.5, -0.5,
-    //     -0.5, -0.5, -0.5,
-    //      0.5, -0.5, -0.5,
-    //      0.5, -0.5,  0.5,
-    //      0.5,  0.5,  0.5,
-    //     -0.5,  0.5,  0.5,
-    //     -0.5,  0.5, -0.5,
-    //     -0.5, -0.5, -0.5
-    // ];
-    // let color: Vec<GLfloat> = vec![
-    //     0.5, 0.5, 0.5,
-    //     0.5, 0.0, 0.0,
-    //     0.5, 0.5, 0.0,
-    //     0.0, 0.5, 0.0,
-    //     0.0, 0.5, 0.5,
-    //     0.0, 0.0, 0.5,
-    //     0.5, 0.0, 0.5,
-    //     0.5, 0.0, 0.0,
-    // ];
+    println!("number of tris:{}", verts.len());
 
     unsafe {
+        let mut vao: GLuint = 0;
+        gl::GenVertexArrays(1,&mut vao);
+        gl::BindVertexArray(vao);
+
         gl::ClearColor(0.0, 0.0, 0.0, 0.0);
         gl::Enable(gl::DEPTH_TEST);
 
@@ -92,9 +113,11 @@ fn main() {
                 std::mem::transmute::<&usize, *const GLint>(&frag_src.len()),
             );
         }
-
         gl::CompileShader(vert_shader);
         gl::CompileShader(frag_shader);
+
+        print_shader_log(vert_shader);
+        print_shader_log(frag_shader);
 
         let shader = gl::CreateProgram();
 
@@ -102,14 +125,15 @@ fn main() {
         gl::AttachShader(shader, frag_shader);
 
         gl::LinkProgram(shader);
-
         gl::UseProgram(shader);
-
-        gl::EnableVertexAttribArray(0);
         // gl::EnableVertexAttribArray(1);
 
         gl::GenBuffers(1, &mut vert_buffer as *mut GLuint);
         gl::BindBuffer(gl::ARRAY_BUFFER, vert_buffer);
+
+println!("vert_buffer:{}", vert_buffer);
+
+        gl::EnableVertexAttribArray(0);
 
         // gl::BufferData(
         //     gl::ARRAY_BUFFER,
@@ -118,14 +142,16 @@ fn main() {
         //     gl::STATIC_DRAW,
         // );
 
+        print_gl_error();
+        gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
+        print_gl_error();
+
         gl::BufferData(
             gl::ARRAY_BUFFER,
             4 * verts.len() as isize,
             verts.as_ptr() as *const std::os::raw::c_void,
             gl::STATIC_DRAW,
         );
-        gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
-
         // gl::GenBuffers(1, &mut color_buffer as *mut GLuint);
         // gl::BindBuffer(gl::ARRAY_BUFFER, color_buffer);
         // gl::BufferData(
