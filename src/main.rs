@@ -87,7 +87,7 @@ fn main() {
 
     unsafe {
         let mut vao: GLuint = 0;
-        gl::GenVertexArrays(1,&mut vao);
+        gl::GenVertexArrays(1, &mut vao);
         gl::BindVertexArray(vao);
 
         gl::ClearColor(0.0, 0.0, 0.0, 0.0);
@@ -131,7 +131,7 @@ fn main() {
         gl::GenBuffers(1, &mut vert_buffer as *mut GLuint);
         gl::BindBuffer(gl::ARRAY_BUFFER, vert_buffer);
 
-println!("vert_buffer:{}", vert_buffer);
+        println!("vert_buffer:{}", vert_buffer);
 
         gl::EnableVertexAttribArray(0);
 
@@ -164,7 +164,24 @@ println!("vert_buffer:{}", vert_buffer);
     }
 
     while !window.should_close() {
-        let cursor_pos = window.get_cursor_pos();
+        let window_size = window.get_size();
+        let window_size = (window_size.0 as f64, window_size.1 as f64);
+        let cursor_pos = {
+            let mut pos = window.get_cursor_pos();
+            if pos.0 < 0.0 {
+                pos.0 = 0.0;
+            }
+            if pos.0 > window_size.0 {
+                pos.0 = window_size.0;
+            }
+            if pos.1 < 0.0 {
+                pos.1 = 1.0;
+            }
+            if pos.1 > window_size.1 {
+                pos.1 = window_size.1;
+            }
+            pos
+        };
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
             gl::Uniform2f(

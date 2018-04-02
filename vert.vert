@@ -13,7 +13,7 @@ void main()
 	vec3 rot_pos = pos*0.3;
 
   tex_coord = rot_pos;
-	shad_color = rot_pos;
+	shad_color = fract(rot_pos);
 	// shad_color = color;
 	rot_pos *= mat3(
 		cos(rot[0]),0,sin(rot[0]),
