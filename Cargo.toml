@@ -7,4 +7,3 @@ authors = ["artbot345"]
 glfw = "0.21.0"
 gl = "0.10.0"
 image = "0.18.0"
-stl_io = "0.3.6"

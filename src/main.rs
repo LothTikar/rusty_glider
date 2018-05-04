@@ -1,6 +1,5 @@
 extern crate gl;
 extern crate glfw;
-extern crate stl_io;
 
 use gl::types::*;
 use glfw::Context;
@@ -68,20 +67,19 @@ fn main() {
     let mut vert_buffer: GLuint = 0;
     // let mut color_buffer: GLuint = 0;
 
-    let boat_stl = {
-        let mut file = std::fs::File::open("Glider DG-1000.stl").unwrap();
-        stl_io::read_stl(&mut file).unwrap()
-    };
+    let mut verts: Vec<GLfloat> = Vec::with_capacity(3 * 3);
 
-    let mut verts: Vec<GLfloat> = Vec::with_capacity(boat_stl.vertices.len());
+    verts.push(-0.5);
+    verts.push(-0.5);
+    verts.push(0.0);
 
-    for tri in boat_stl.faces {
-        for vert in tri.vertices.iter() {
-            for coord in boat_stl.vertices[*vert].iter() {
-                verts.push(*coord);
-            }
-        }
-    }
+    verts.push(0.5);
+    verts.push(-0.5);
+    verts.push(0.0);
+
+    verts.push(-0.5);
+    verts.push(0.5);
+    verts.push(0.0);
 
     println!("number of tris:{}", verts.len());
 
