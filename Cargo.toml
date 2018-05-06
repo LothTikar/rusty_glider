@@ -1,9 +1,10 @@
 [package]
 name = "rusty_glider"
 version = "0.1.0"
-authors = ["artbot345"]
+authors = ["LothTikar"]
 
 [dependencies]
 glfw = "0.21.0"
 gl = "0.10.0"
 image = "0.18.0"
+stl = "0.2.0"
