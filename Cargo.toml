@@ -7,4 +7,4 @@ authors = ["LothTikar"]
 glfw = "0.21.0"
 gl = "0.10.0"
 image = "0.18.0"
-stl = "0.2.0"
+xml-rs = "0.8.0"
