@@ -166,18 +166,10 @@ fn main() {
         let window_size = (window_size.0 as f64, window_size.1 as f64);
         let cursor_pos = {
             let mut pos = window.get_cursor_pos();
-            if pos.0 < 0.0 {
-                pos.0 = 0.0;
-            }
-            if pos.0 > window_size.0 {
-                pos.0 = window_size.0;
-            }
-            if pos.1 < 0.0 {
-                pos.1 = 1.0;
-            }
-            if pos.1 > window_size.1 {
-                pos.1 = window_size.1;
-            }
+
+            pos.0 = pos.0.max(0.0).min(500.0);
+            pos.1 = pos.1.max(0.0).min(500.0);
+
             pos
         };
         unsafe {
